@@ -3,33 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Web By Fbn Dpe</title>
-
+<title>Yomitan Compatible Text Output</title>
 <style>
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: system-ui, Arial;
-    width: 100%;
+  body { 
+    font-family: system-ui, Arial, sans-serif; 
+    padding: 20px; 
+    background:#fff; 
+    position: relative;
     min-height: 100vh;
-
-    /* Gunakan background file GitHub */
-    background-image: url('a7bfa9818992675730304eda95cd377a%20(1).jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    color: #111;
   }
 
-  /* Overlay putih tengah */
-  .overlay {
-    max-width: 900px;
-    margin: auto;
-    margin-top: 30px;
-    background: rgba(255,255,255,0.75);
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  }
+  h2 { margin-top: 0; }
 
   textarea {
     width: 100%;
@@ -38,41 +23,59 @@
     padding: 10px;
     box-sizing: border-box;
     margin-bottom: 10px;
-    border-radius: 8px;
-    border: 1px solid #aaa;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    resize: vertical;
   }
 
+  /* OUTPUT: bukan kotak besar, teks wrap normal */
   #output {
     margin-top: 10px;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 28px;
-    background: rgba(255,255,255,0.85);
+    padding: 6px 2px;
+    border: none;
+    font-size: 30px;
+    line-height: 1.45;
+    background: transparent;
     white-space: pre-wrap;
-    word-break: break-word;
-    user-select: text;
     cursor: text;
+    user-select: text;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    color: #111;
   }
 
   .btn {
     padding: 10px 15px;
     font-size: 16px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     margin-right: 10px;
     background:#222;
     color:white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
   }
 
   .btn.red { background:#b60000; }
 
-  /* Tombol fullscreen pojok kanan bawah */
+  #markBtnInline {
+    padding: 10px 12px;
+    font-size: 18px;
+    border-radius: 8px;
+    background:#ffd24d;
+    color:#222;
+    border:none;
+    cursor:pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+  }
+
+  .small { padding:6px 8px; font-size:12px; border-radius:6px; border:none; cursor:pointer; }
+
+  /* Fullscreen Button */
   #fullscreenBtn {
     position: fixed;
-    right: 18px;
-    bottom: 18px;
+    right: 15px;
+    bottom: 15px;
     padding: 14px 18px;
     font-size: 16px;
     border-radius: 50px;
@@ -81,67 +84,298 @@
     color:white;
     border:none;
     cursor:pointer;
-    box-shadow:0 4px 12px rgba(0,0,0,0.25);
+    box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  /* Toggle Bookmark Button - hitam dengan bintang putih */
+  #toggleMarksBtn {
+    position: fixed;
+    left: 15px;
+    bottom: 15px;
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    font-size: 24px;
+    border-radius: 50%;
+    z-index: 9999;
+    background:#000; /* lingkaran hitam */
+    color:#fff;      /* bintang putih */
+    border:none;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 6px 18px rgba(0,0,0,0.25);
+  }
+
+  /* Bookmark Panel */
+  #marksPreview {
+    margin-top: 14px;
+    border-top: 1px dashed #e6e6e6;
+    padding-top: 12px;
+    display:none;
+  }
+
+  .marks-header { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; }
+  .marks-list { max-height:220px; overflow:auto; border:1px solid #f0f0f0; padding:8px; border-radius:8px; background:#fafafa; }
+
+  /* FIXED ITEM: block so text wraps naturally */
+  .mark-item {
+    padding:8px;
+    border-radius:6px;
+    background:white;
+    margin-bottom:8px;
+    display:block;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    border: 1px solid #f1f1f1;
+  }
+
+  .mark-meta { font-size:11px; color:#666; margin-bottom:6px; }
+
+  /* FIXED TEXT WRAP */
+  .mark-text {
+    font-size:13px;
+    white-space:pre-wrap;
+    overflow-wrap:break-word;
+    word-break:break-word;
+    max-height:none;
+    color: #111;
+  }
+
+  .mark-actions { margin-top:10px; display:flex; gap:6px; }
+
+  .mark-load { background:#0a74ff; color:white; padding:6px 10px; border-radius:6px; border:none; cursor:pointer; }
+  .mark-del { background:#ff4d4d; color:white; padding:6px 10px; border-radius:6px; border:none; cursor:pointer; }
+
+  @media (max-width:600px){
+    #fullscreenBtn { right:12px; bottom:12px; }
+    #toggleMarksBtn { left:12px; bottom:12px; width:48px; height:48px; font-size:20px; }
   }
 </style>
 </head>
-
 <body>
-
-<div class="overlay">
 
 <h2>Web By Fbn Dpe</h2>
 
 <textarea id="input" placeholder="Text nya paste ke sini ya sayang.. >_<"></textarea>
 
-<button class="btn" id="pasteBtn">Paste</button>
-<button class="btn red" onclick="resetAll()">Reset</button>
-
-<div id="output"></div>
-
+<div class="controls">
+  <button class="btn" id="pasteBtn">Paste</button>
+  <button class="btn red" id="resetBtn">clear</button>
+  <button id="markBtnInline" title="Mark teks ini (★)">★</button>
 </div>
 
-<!-- Fullscreen Button -->
-<button id="fullscreenBtn">⛶</button>
+<div id="output" aria-live="polite"></div>
+
+<!-- Bookmark Panel -->
+<div class="marks-preview" id="marksPreview" aria-hidden="true">
+  <div class="marks-header">
+    <strong id="marksHeaderTitle">Marks (0)</strong>
+    <div style="display:flex;gap:8px;">
+      <button class="small mark-clear" id="clearMarksBtn">Clear</button>
+    </div>
+  </div>
+  <div class="marks-list" id="marksList">
+    <div class="muted" id="noMarksMsg">Belum ada mark. Klik ★ untuk menandai teks saat ini.</div>
+  </div>
+</div>
+
+<!-- Floating Buttons -->
+<button id="toggleMarksBtn" title="Tampilkan / sembunyikan marks">★</button>
+<button id="fullscreenBtn" title="Fullscreen">⛶</button>
 
 <script>
-// AUTO UPDATE
+/* ====== Config ====== */
+const KEY = "yomitan_marks_v1";
 const input = document.getElementById("input");
 const output = document.getElementById("output");
+const pasteBtn = document.getElementById("pasteBtn");
+const resetBtn = document.getElementById("resetBtn");
+const markBtnInline = document.getElementById("markBtnInline");
+const marksPreview = document.getElementById("marksPreview");
+const marksList = document.getElementById("marksList");
+const noMarksMsg = document.getElementById("noMarksMsg");
+const clearMarksBtn = document.getElementById("clearMarksBtn");
+const toggleMarksBtn = document.getElementById("toggleMarksBtn");
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+const marksHeaderTitle = document.getElementById("marksHeaderTitle");
 
+function nowISO(){ return new Date().toISOString(); }
+function niceDate(t){ return new Date(t).toLocaleString(); }
+function loadMarks(){ try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch(e){ return []; } }
+function saveMarks(a){ localStorage.setItem(KEY, JSON.stringify(a)); }
+
+/* basic escape to avoid injecting HTML when rendering */
+function escapeHtml(s){
+  if (s == null) return "";
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+/* live update output */
 input.addEventListener("input", () => {
   output.textContent = input.value;
 });
 
-// RESET
-function resetAll() {
+/* paste from clipboard */
+pasteBtn.onclick = async () => {
+  try {
+    const t = await navigator.clipboard.readText();
+    input.value = t;
+    output.textContent = t;
+  } catch {
+    alert("Clipboard tidak diizinkan.");
+  }
+};
+
+/* reset */
+resetBtn.onclick = () => {
   input.value = "";
   output.textContent = "";
+};
+
+/* add mark with duplicate-check */
+/* NOTE: changed so inline mark DOES NOT open the panel */
+markBtnInline.onclick = () => {
+  const raw = input.value;
+  const text = raw == null ? "" : raw.trim();
+  if (!text) return alert("Tidak ada teks untuk disimpan.");
+
+  const arr = loadMarks();
+
+  /* DUP CHECK: normalized exact match */
+  const normalized = text.replace(/\r\n/g,"\n").trim();
+  const existingIndex = arr.findIndex(item => {
+    const a = (item.text || "").replace(/\r\n/g,"\n").trim();
+    return a === normalized;
+  });
+
+  if (existingIndex !== -1) {
+    // update time & move to front
+    const existing = arr.splice(existingIndex,1)[0];
+    existing.savedAt = nowISO();
+    existing.text = text;
+    arr.unshift(existing);
+  } else {
+    arr.unshift({ id: Date.now()+"-"+Math.random().toString(36).slice(2,6), text: text, savedAt: nowISO() });
+  }
+
+  saveMarks(arr);
+  renderMarks();
+
+  // DO NOT open the panel here — intentionally left out
+  // small visual feedback:
+  markBtnInline.style.transform = "scale(0.98)";
+  setTimeout(()=> markBtnInline.style.transform = "", 120);
+};
+
+/* render marks with wrapping and safe HTML */
+function renderMarks(){
+  const arr = loadMarks();
+  marksHeaderTitle.textContent = `Marks (${arr.length})`;
+
+  // clear existing mark-item nodes
+  marksList.querySelectorAll(".mark-item").forEach(n => n.remove());
+
+  if (!arr.length){
+    noMarksMsg.style.display = "block";
+    return;
+  }
+  noMarksMsg.style.display = "none";
+
+  arr.forEach((m, index) => {
+    const item = document.createElement("div");
+    item.className = "mark-item";
+
+    // meta
+    const meta = document.createElement("div");
+    meta.className = "mark-meta";
+    meta.textContent = niceDate(m.savedAt);
+
+    // text (escape then replace newline -> <br>)
+    const textDiv = document.createElement("div");
+    textDiv.className = "mark-text";
+    const safe = escapeHtml(m.text).replace(/\n/g, "<br>");
+    textDiv.innerHTML = safe;
+
+    // actions container
+    const actions = document.createElement("div");
+    actions.className = "mark-actions";
+
+    const loadBtn = document.createElement("button");
+    loadBtn.className = "mark-load";
+    loadBtn.type = "button";
+    loadBtn.textContent = "Load";
+    loadBtn.dataset.id = m.id;
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "mark-del";
+    delBtn.type = "button";
+    delBtn.textContent = "Del";
+    delBtn.dataset.id = m.id;
+
+    actions.appendChild(loadBtn);
+    actions.appendChild(delBtn);
+
+    item.appendChild(meta);
+    item.appendChild(textDiv);
+    item.appendChild(actions);
+
+    marksList.appendChild(item);
+  });
+
+  // attach handlers
+  marksList.querySelectorAll(".mark-load").forEach(btn=>{
+    btn.onclick = e=>{
+      const id = e.target.dataset.id;
+      const it = loadMarks().find(x=>x.id===id);
+      if (it){
+        input.value = it.text;
+        output.textContent = it.text;
+        // close panel after load
+        marksPreview.style.display = "none";
+        marksPreview.setAttribute("aria-hidden", "true");
+      }
+    };
+  });
+
+  marksList.querySelectorAll(".mark-del").forEach(btn=>{
+    btn.onclick = e=>{
+      const id = e.target.dataset.id;
+      saveMarks(loadMarks().filter(x=>x.id!==id));
+      renderMarks();
+    };
+  });
 }
 
-// PASTE BUTTON
-document.getElementById("pasteBtn").addEventListener("click", async () => {
-  try {
-    const text = await navigator.clipboard.readText();
-    input.value = text;
-    output.textContent = text;
-  } catch (err) {
-    alert("Clipboard tidak diizinkan. Gunakan HTTPS atau izinkan permission.");
+/* clear all */
+clearMarksBtn.onclick = () => {
+  if (confirm("Hapus semua mark?")){
+    localStorage.removeItem(KEY);
+    renderMarks();
   }
-});
+};
 
-// FULLSCREEN
-const fsBtn = document.getElementById("fullscreenBtn");
+/* toggle panel */
+toggleMarksBtn.onclick = () => {
+  const isHidden = !(marksPreview.style.display === "block");
+  marksPreview.style.display = isHidden ? "block" : "none";
+  marksPreview.setAttribute("aria-hidden", isHidden ? "false" : "true");
+  renderMarks();
+};
 
-fsBtn.addEventListener("click", () => {
-  if (!document.fullscreenElement) {
+/* fullscreen */
+fullscreenBtn.onclick = () => {
+  if (!document.fullscreenElement){
     document.documentElement.requestFullscreen();
-    fsBtn.textContent = "×";
+    fullscreenBtn.textContent="×";
   } else {
     document.exitFullscreen();
-    fsBtn.textContent = "⛶";
+    fullscreenBtn.textContent="⛶";
   }
-});
+};
+
+/* init */
+renderMarks();
 </script>
 
 </body>
