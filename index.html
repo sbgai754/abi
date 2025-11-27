@@ -7,11 +7,17 @@
 
 <style>
 /* ================================
-   BACKGROUND GITHUB (CUSTOM)
+   CONFIG — ganti URL RAW GitHub di bawah
    ================================ */
 :root{
+  /* Ganti dengan RAW URL GitHub gambarmu, contoh:
+     https://raw.githubusercontent.com/username/repo/branch/path/a7bfa9818992675730304eda95cd377a%20(1).jpg
+  */
   --bg-image-url: url("a7bfa9818992675730304eda95cd377a (1).jpg");
-  --content-bg: rgba(255,255,255,0.92);
+
+  /* turunin opacity biar background kelihatan (sesuaikan 0.55/0.7 dst) */
+  --content-bg: rgba(255,255,255,0.55);
+
   --panel-padding: 20px;
   --max-width: 900px;
 }
@@ -26,7 +32,11 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  font-family: system-ui, Arial;
+
+  /* penting: beri ruang bawah supaya gambar tidak kepotong di layar ponsel */
+  padding-bottom: 180px;
+
+  font-family: system-ui, Arial, sans-serif;
   color: #111;
 }
 
@@ -42,9 +52,10 @@ body {
   -webkit-backdrop-filter: blur(6px);
 }
 
-/* =======================================
-   TEXTAREA + OUTPUT
-   ======================================= */
+/* BASIC TYPO */
+h2 { margin-top: 0; font-size: 28px; }
+
+/* TEXTAREA + OUTPUT */
 textarea {
   width: 100%;
   height: 120px;
@@ -55,6 +66,7 @@ textarea {
   border-radius: 8px;
   border: 1px solid #ccc;
   background: #fff;
+  resize: vertical;
 }
 
 #output {
@@ -68,9 +80,7 @@ textarea {
   overflow-wrap: break-word;
 }
 
-/* =======================================
-   BUTTONS
-   ======================================= */
+/* BUTTONS */
 .btn {
   padding: 10px 15px;
   font-size: 16px;
@@ -80,6 +90,7 @@ textarea {
   margin-right: 10px;
   background:#222;
   color:white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 }
 
 .btn.red { background:#b60000; }
@@ -96,9 +107,7 @@ textarea {
 
 .small { padding:6px 8px; font-size:12px; border-radius:6px; cursor:pointer; }
 
-/* =======================================
-   FLOATING BUTTONS
-   ======================================= */
+/* FLOATING BUTTONS (z-index tinggi agar tetap terlihat) */
 #fullscreenBtn {
   position: fixed;
   right: 15px;
@@ -130,11 +139,10 @@ textarea {
   display:flex;
   align-items:center;
   justify-content:center;
+  box-shadow:0 8px 22px rgba(0,0,0,0.28);
 }
 
-/* =======================================
-   BOOKMARK PANEL
-   ======================================= */
+/* BOOKMARK PANEL */
 #marksPreview {
   margin-top: 16px;
   border-top: 1px dashed #dcdcdc;
@@ -161,7 +169,7 @@ textarea {
   background:#fafafa;
 }
 
-/* Each bookmark */
+/* EACH MARK ITEM: block so text wraps */
 .mark-item {
   padding:8px;
   border-radius:6px;
@@ -171,11 +179,7 @@ textarea {
   border: 1px solid #f1f1f1;
 }
 
-.mark-meta {
-  font-size:11px;
-  color:#666;
-  margin-bottom:6px;
-}
+.mark-meta { font-size:11px; color:#666; margin-bottom:6px; }
 
 .mark-text {
   font-size:13px;
@@ -190,10 +194,10 @@ textarea {
   gap:6px;
 }
 
-.mark-load { background:#0a74ff; color:white; padding:6px 10px; border-radius:6px; border:none; }
-.mark-del  { background:#ff4d4d; color:white; padding:6px 10px; border-radius:6px; border:none; }
+.mark-load { background:#0a74ff; color:white; padding:6px 10px; border-radius:6px; border:none; cursor:pointer; }
+.mark-del  { background:#ff4d4d; color:white; padding:6px 10px; border-radius:6px; border:none; cursor:pointer; }
 
-/* MOBILE */
+/* RESPONSIVE */
 @media (max-width:600px){
   #toggleMarksBtn { width:48px; height:48px; font-size:20px; }
 }
@@ -203,34 +207,34 @@ textarea {
 
 <div id="mainWrap">
 
-<h2>Web By Fbn Dpe</h2>
+  <h2>Web By Fbn Dpe</h2>
 
-<textarea id="input" placeholder="Text nya paste ke sini ya sayang.. >_<"></textarea>
+  <textarea id="input" placeholder="Text nya paste ke sini ya sayang.. >_<"></textarea>
 
-<div class="controls">
-  <button class="btn" id="pasteBtn">Paste</button>
-  <button class="btn red" id="resetBtn">Reset</button>
-  <button id="markBtnInline">★</button>
-</div>
-
-<div id="output"></div>
-
-<!-- BOOKMARK PANEL -->
-<div id="marksPreview">
-  <div class="marks-header">
-    <strong id="marksHeaderTitle">Marks (0)</strong>
-    <button class="small" id="clearMarksBtn">Clear</button>
+  <div class="controls">
+    <button class="btn" id="pasteBtn">Paste</button>
+    <button class="btn red" id="resetBtn">Reset</button>
+    <button id="markBtnInline" title="Simpan mark (tidak membuka panel)">★</button>
   </div>
-  <div class="marks-list" id="marksList">
-    <div id="noMarksMsg">Belum ada mark.</div>
-  </div>
-</div>
 
-</div><!--/mainWrap-->
+  <div id="output" aria-live="polite"></div>
+
+  <!-- BOOKMARK PANEL -->
+  <div id="marksPreview" aria-hidden="true">
+    <div class="marks-header">
+      <strong id="marksHeaderTitle">Marks (0)</strong>
+      <button class="small" id="clearMarksBtn">Clear</button>
+    </div>
+    <div class="marks-list" id="marksList">
+      <div id="noMarksMsg">Belum ada mark.</div>
+    </div>
+  </div>
+
+</div><!-- /mainWrap -->
 
 <!-- FLOATING BUTTONS -->
-<button id="toggleMarksBtn">★</button>
-<button id="fullscreenBtn">⛶</button>
+<button id="toggleMarksBtn" title="Tampilkan / sembunyikan marks">★</button>
+<button id="fullscreenBtn" title="Fullscreen">⛶</button>
 
 <script>
 /* STORAGE KEY */
@@ -255,12 +259,10 @@ function niceDate(t){ return new Date(t).toLocaleString(); }
 function loadMarks(){ try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch(e){ return []; } }
 function saveMarks(a){ localStorage.setItem(KEY, JSON.stringify(a)); }
 
-/* ESCAPE HTML */
+/* ESCAPE HTML SAFE */
 function escapeHtml(s){
-  if (!s) return "";
-  return s.replace(/&/g,"&amp;")
-          .replace(/</g,"&lt;")
-          .replace(/>/g,"&gt;");
+  if (s == null) return "";
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
 /* LIVE OUTPUT */
@@ -281,26 +283,32 @@ resetBtn.onclick = ()=>{
   output.textContent = "";
 };
 
-/* ADD MARK - duplicate check */
+/* ADD MARK (inline star) — **tidak membuka panel** */
 markBtnInline.onclick = ()=>{
-  const text = (input.value || "").trim();
-  if (!text) return;
+  const t = (input.value || "").trim();
+  if (!t) return;
 
   let arr = loadMarks();
 
-  const normalized = text.replace(/\r\n/g,"\n").trim();
-  const idx = arr.findIndex(i => i.text.replace(/\r\n/g,"\n").trim() === normalized);
+  const normalized = t.replace(/\r\n/g,"\n").trim();
+  const idx = arr.findIndex(i => (i.text || "").replace(/\r\n/g,"\n").trim() === normalized);
 
   if (idx !== -1){
+    // update timestamp & move to top
     const old = arr.splice(idx,1)[0];
     old.savedAt = nowISO();
+    old.text = t;
     arr.unshift(old);
   } else {
-    arr.unshift({id:Date.now()+"-"+Math.random(), text, savedAt:nowISO()});
+    arr.unshift({ id: Date.now()+"-"+Math.random().toString(36).slice(2,6), text: t, savedAt: nowISO() });
   }
 
   saveMarks(arr);
   renderMarks();
+
+  // small visual feedback on button (scale)
+  markBtnInline.style.transform = "scale(0.98)";
+  setTimeout(()=> markBtnInline.style.transform = "", 120);
 };
 
 /* RENDER MARKS */
@@ -308,41 +316,44 @@ function renderMarks(){
   const arr = loadMarks();
   marksHeaderTitle.textContent = `Marks (${arr.length})`;
 
-  marksList.querySelectorAll(".mark-item").forEach(e=>e.remove());
+  // clear existing nodes
+  marksList.querySelectorAll(".mark-item").forEach(n=>n.remove());
 
   if (!arr.length){
-    noMarksMsg.style.display="block";
+    noMarksMsg.style.display = "block";
     return;
   }
-  noMarksMsg.style.display="none";
+  noMarksMsg.style.display = "none";
 
   arr.forEach(m=>{
     const item = document.createElement("div");
-    item.className="mark-item";
+    item.className = "mark-item";
 
     const meta = document.createElement("div");
-    meta.className="mark-meta";
+    meta.className = "mark-meta";
     meta.textContent = niceDate(m.savedAt);
 
     const textDiv = document.createElement("div");
-    textDiv.className="mark-text";
+    textDiv.className = "mark-text";
     textDiv.innerHTML = escapeHtml(m.text).replace(/\n/g,"<br>");
 
     const actions = document.createElement("div");
-    actions.className="mark-actions";
+    actions.className = "mark-actions";
 
     const loadBtn = document.createElement("button");
-    loadBtn.className="mark-load";
-    loadBtn.textContent="Load";
+    loadBtn.className = "mark-load";
+    loadBtn.textContent = "Load";
     loadBtn.onclick = ()=>{
       input.value = m.text;
       output.textContent = m.text;
-      marksPreview.style.display="none";
+      // close panel after load
+      marksPreview.style.display = "none";
+      marksPreview.setAttribute("aria-hidden", "true");
     };
 
     const delBtn = document.createElement("button");
-    delBtn.className="mark-del";
-    delBtn.textContent="Del";
+    delBtn.className = "mark-del";
+    delBtn.textContent = "Del";
     delBtn.onclick = ()=>{
       saveMarks(loadMarks().filter(x=>x.id!==m.id));
       renderMarks();
@@ -361,16 +372,17 @@ function renderMarks(){
 
 /* CLEAR ALL */
 clearMarksBtn.onclick = ()=>{
-  if(confirm("Hapus semua mark?")){
+  if (confirm("Hapus semua mark?")){
     localStorage.removeItem(KEY);
     renderMarks();
   }
 };
 
-/* TOGGLE PANEL */
+/* TOGGLE PANEL (black round button) */
 toggleMarksBtn.onclick = ()=>{
-  const s = marksPreview.style.display === "block";
-  marksPreview.style.display = s ? "none" : "block";
+  const currently = marksPreview.style.display === "block";
+  marksPreview.style.display = currently ? "none" : "block";
+  marksPreview.setAttribute("aria-hidden", currently ? "true" : "false");
   renderMarks();
 };
 
