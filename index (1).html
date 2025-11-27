@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Yomitan Compatible Text Output</title>
+
+<style>
+/* ================================
+   CONFIG — ganti URL RAW GITHUB di bawah
+   ================================ */
+:root{
+  /* Ganti dengan RAW URL GitHub gambarmu, contoh:
+     https://raw.githubusercontent.com/username/repo/branch/path/a7bfa9818992675730304eda95cd377a%20(1).jpg
+  */
+  --bg-image-url: url("a7bfa9818992675730304eda95cd377a (1).jpg");
+  --content-bg: rgba(255,255,255,0.55);
+  --panel-padding: 20px;
+  --max-width: 900px;
+}
+
+/* Put background on html so it covers entire viewport and stays fixed */
+html {
+  height: 100%;
+  background-image: var(--bg-image-url);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Body transparent so html background is visible */
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: transparent;
+  font-family: system-ui, Arial, sans-serif;
+  color: #111;
+  padding-bottom: 100px; /* ruang bawah untuk floating buttons */
+}
+
+/* WHITE CONTENT PANEL */
+#mainWrap {
+  max-width: var(--max-width);
+  margin: 20px auto 6px;
+  background: var(--content-bg);
+  padding: var(--panel-padding);
+  border-radius: 14px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* TYPO */
+h2 { margin-top: 0; font-size: 28px; }
+
+/* TEXTAREA + OUTPUT */
+textarea {
+  width: 100%;
+  height: 120px;
+  font-size: 18px;
+  padding: 10px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  resize: vertical;
+}
+
+/* OUTPUT mirip textarea, 1 baris waktu kosong */
+#output {
+  width: 100%;
+  min-height: 35px;                /* 1 baris kalau kosong */
+  padding: 10px;
+  margin-top: 10px;
+
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+
+  font-size: 30px;
+  line-height: 1.45;
+  color: #111;
+
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
+
+  user-select: text;
+}
+
+/* BUTTON STYLES */
+.btn {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 10px;
+  background:#222;
+  color:white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+.btn.red { background:#b60000; }
+
+#markBtnInline {
+  padding: 7px 13px;
+  font-size: 17px;
+  border-radius: 8px;
+  background:#ffd24d;
+  color:#222;
+  border:none;
+  cursor:pointer;
+}
+.small { padding:6px 8px; font-size:12px; border-radius:6px; cursor:pointer; }
+
+/* FLOATING BUTTONS */
+#fullscreenBtn {
+  position: fixed;
+  right: 15px;
+  bottom: 15px;
+  padding: 14px 18px;
+  font-size: 16px;
+  border-radius: 50px;
+  z-index: 9999;
+  background:#222;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+
+/* BLACK ROUND TOGGLE */
+#toggleMarksBtn {
+  position: fixed;
+  left: 15px;
+  bottom: 15px;
+  width: 54px;
+  height: 54px;
+  font-size: 24px;
+  border-radius: 50%;
+  z-index: 9999;
+  background:#000;
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 8px 22px rgba(0,0,0,0.28);
+}
+
+/* ============================================
+   ANIMATED BOOKMARK PANEL (slide + fade)
+   ============================================ */
+/* initial closed */
+#marksPreview {
+  margin-top: 16px;
+  border-top: 1px dashed #dcdcdc;
+  padding-top: 0;
+
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  overflow: hidden;
+
+  background: rgba(255,255,255,0.95);
+  border-radius: 10px;
+  padding: 0 12px;
+  transition: max-height 360ms cubic-bezier(.2,.9,.2,1),
+              opacity 260ms ease,
+              transform 300ms cubic-bezier(.2,.9,.2,1),
+              padding 260ms ease;
+  box-sizing: border-box;
+}
+
+/* open state */
+#marksPreview.open {
+  max-height: 1000px;
+  opacity: 1;
+  transform: translateY(0);
+  padding: 12px;
+}
+
+/* inner header & list */
+.marks-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+.marks-list {
+  max-height:220px;
+  overflow:auto;
+  border:1px solid #ececec;
+  padding:8px;
+  border-radius:8px;
+  background:#fafafa;
+}
+
+/* Each mark item */
+.mark-item {
+  padding:8px;
+  border-radius:6px;
+  background:white;
+  margin-bottom:8px;
+  display:block;
+  border: 1px solid #f1f1f1;
+}
+.mark-meta { font-size:11px; color:#666; margin-bottom:6px; }
+.mark-text {
+  font-size:13px;
+  white-space:pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.mark-actions { margin-top:10px; display:flex; gap:6px; }
+.mark-load { background:#0a74ff; color:white; padding:6px 10px; border-radius:6px; border:none; }
+.mark-del  { background:#ff4d4d; color:white; padding:6px 10px; border-radius:6px; border:none; }
+
+/* responsive tweak */
+@media (max-width:600px){
+  #toggleMarksBtn { width:48px; height:48px; font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div id="mainWrap">
+
+  <h2>
+    <a href="https://www.tiktok.com/@abidakedayoo?_r=1&_t=ZS-91kv9UrUtWM"
+       style="text-decoration: underline; font-weight: bold; font-style: italic; color: inherit;">
+      Web By アビ君 (ABI kun)
+    </a>
+  </h2>
+
+  <textarea id="input" placeholder="Text nya paste ke sini ya sayang.. >_<"></textarea>
+
+  <div class="controls">
+    <button class="btn" id="pasteBtn">Paste</button>
+    <button class="btn red" id="resetBtn">Clear</button>
+    <button id="markBtnInline" title="Simpan mark (tidak membuka panel)">★ Simpan</button>
+  </div>
+
+  <div id="output" aria-live="polite"></div>
+
+  <!-- BOOKMARK PANEL -->
+  <div id="marksPreview" aria-hidden="true">
+    <div class="marks-header">
+      <strong id="marksHeaderTitle">Marks (0)</strong>
+      <button class="small" id="clearMarksBtn">Clear</button>
+    </div>
+    <div class="marks-list" id="marksList">
+      <div id="noMarksMsg">Belum ada mark.</div>
+    </div>
+  </div>
+
+</div><!-- /mainWrap -->
+
+<!-- FLOATING BUTTONS -->
+<button id="toggleMarksBtn" title="Tampilkan / sembunyikan marks">★</button>
+<button id="fullscreenBtn" title="Fullscreen">⛶</button>
+
+<script>
+/* STORAGE KEY */
+const KEY = "yomitan_marks_v1";
+
+/* ELEMENTS */
+const input = document.getElementById("input");
+const output = document.getElementById("output");
+const pasteBtn = document.getElementById("pasteBtn");
+const resetBtn = document.getElementById("resetBtn");
+const markBtnInline = document.getElementById("markBtnInline");
+const marksPreview = document.getElementById("marksPreview");
+const marksList = document.getElementById("marksList");
+const noMarksMsg = document.getElementById("noMarksMsg");
+const clearMarksBtn = document.getElementById("clearMarksBtn");
+const toggleMarksBtn = document.getElementById("toggleMarksBtn");
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+const marksHeaderTitle = document.getElementById("marksHeaderTitle");
+
+function nowISO(){ return new Date().toISOString(); }
+function niceDate(t){ return new Date(t).toLocaleString(); }
+function loadMarks(){ try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch(e){ return []; } }
+function saveMarks(a){ localStorage.setItem(KEY, JSON.stringify(a)); }
+
+/* ESCAPE HTML SAFE */
+function escapeHtml(s){
+  if (s == null) return "";
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+/* LIVE OUTPUT */
+input.addEventListener("input", ()=> output.textContent = input.value );
+
+/* PASTE */
+pasteBtn.onclick = async ()=>{
+  try{
+    const t = await navigator.clipboard.readText();
+    input.value = t;
+    output.textContent = t;
+  }catch{ alert("Clipboard tidak diizinkan."); }
+};
+
+/* RESET */
+resetBtn.onclick = ()=>{
+  input.value = "";
+  output.textContent = "";
+};
+
+/* ADD MARK (inline star) — does not open panel */
+markBtnInline.onclick = ()=>{
+  const t = (input.value || "").trim();
+  if (!t) return;
+
+  let arr = loadMarks();
+
+  const normalized = t.replace(/\r\n/g,"\n").trim();
+  const idx = arr.findIndex(i => (i.text || "").replace(/\r\n/g,"\n").trim() === normalized);
+
+  if (idx !== -1){
+    // update timestamp & move to top
+    const old = arr.splice(idx,1)[0];
+    old.savedAt = nowISO();
+    old.text = t;
+    arr.unshift(old);
+  } else {
+    arr.unshift({ id: Date.now()+"-"+Math.random().toString(36).slice(2,6), text: t, savedAt: nowISO() });
+  }
+
+  saveMarks(arr);
+  renderMarks();
+
+  // small visual feedback on button (scale)
+  markBtnInline.style.transform = "scale(0.98)";
+  setTimeout(()=> markBtnInline.style.transform = "", 120);
+};
+
+/* RENDER MARKS */
+function renderMarks(){
+  const arr = loadMarks();
+  marksHeaderTitle.textContent = `Marks (${arr.length})`;
+
+  // clear existing nodes
+  marksList.querySelectorAll(".mark-item").forEach(n=>n.remove());
+
+  if (!arr.length){
+    noMarksMsg.style.display = "block";
+    return;
+  }
+  noMarksMsg.style.display = "none";
+
+  arr.forEach(m=>{
+    const item = document.createElement("div");
+    item.className = "mark-item";
+
+    const meta = document.createElement("div");
+    meta.className = "mark-meta";
+    meta.textContent = niceDate(m.savedAt);
+
+    const textDiv = document.createElement("div");
+    textDiv.className = "mark-text";
+    textDiv.innerHTML = escapeHtml(m.text).replace(/\n/g,"<br>");
+
+    const actions = document.createElement("div");
+    actions.className = "mark-actions";
+
+    const loadBtn = document.createElement("button");
+    loadBtn.className = "mark-load";
+    loadBtn.textContent = "Load";
+    // close panel with animation on load
+    loadBtn.onclick = ()=>{
+      input.value = m.text;
+      output.textContent = m.text;
+      marksPreview.classList.remove("open");
+      marksPreview.setAttribute("aria-hidden", "true");
+    };
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "mark-del";
+    delBtn.textContent = "Del";
+    delBtn.onclick = ()=>{
+      saveMarks(loadMarks().filter(x=>x.id!==m.id));
+      renderMarks();
+    };
+
+    actions.appendChild(loadBtn);
+    actions.appendChild(delBtn);
+
+    item.appendChild(meta);
+    item.appendChild(textDiv);
+    item.appendChild(actions);
+
+    marksList.appendChild(item);
+  });
+}
+
+/* CLEAR ALL */
+clearMarksBtn.onclick = ()=>{
+  if (confirm("Hapus semua mark?")){
+    localStorage.removeItem(KEY);
+    renderMarks();
+  }
+};
+
+/* TOGGLE PANEL (animated) */
+toggleMarksBtn.onclick = ()=>{
+  const isOpen = marksPreview.classList.toggle("open");
+  marksPreview.setAttribute("aria-hidden", isOpen ? "false" : "true");
+  renderMarks();
+};
+
+/* FULLSCREEN */
+fullscreenBtn.onclick = ()=>{
+  if (!document.fullscreenElement){
+    document.documentElement.requestFullscreen();
+    fullscreenBtn.textContent="×";
+  } else {
+    document.exitFullscreen();
+    fullscreenBtn.textContent="⛶";
+  }
+};
+
+/* INIT */
+renderMarks();
+</script>
+
+</body>
+</html>
