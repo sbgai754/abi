@@ -8,9 +8,20 @@
   body { 
     font-family: system-ui, Arial; 
     padding: 20px; 
-    background:#fff; 
-    position: relative;
     min-height: 100vh;
+    background-image: url('a7bfa9818992675730304eda95cd377a%20(1).jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  /* Overlay biar teks terbaca */
+  .overlay {
+    background: rgba(255,255,255,0.75);
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 900px;
+    margin: auto;
   }
 
   textarea {
@@ -65,6 +76,8 @@
 </head>
 <body>
 
+<div class="overlay">
+
 <h2>Web By Fbn Dpe</h2>
 
 <textarea id="input" placeholder="Text nya paste ke sini ya sayang.. >_<"></textarea>
@@ -74,7 +87,9 @@
 
 <div id="output"></div>
 
-<!-- FLOATING FULLSCREEN BUTTON -->
+</div>
+
+<!-- FULLSCREEN FLOAT BUTTON -->
 <button id="fullscreenBtn">⛶</button>
 
 <script>
@@ -92,7 +107,7 @@ function resetAll() {
   output.textContent = "";
 }
 
-// PASTE BUTTON (works on HTTPS/GitHub Pages)
+// PASTE BUTTON
 document.getElementById("pasteBtn").addEventListener("click", async () => {
   try {
     const text = await navigator.clipboard.readText();
@@ -103,16 +118,16 @@ document.getElementById("pasteBtn").addEventListener("click", async () => {
   }
 });
 
-// FULLSCREEN BUTTON (floating)
+// FULLSCREEN
 const fsBtn = document.getElementById("fullscreenBtn");
 
 fsBtn.addEventListener("click", () => {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
-    fsBtn.textContent = "×"; // exit icon
+    fsBtn.textContent = "×";
   } else {
     document.exitFullscreen();
-    fsBtn.textContent = "⛶"; // fullscreen icon
+    fsBtn.textContent = "⛶";
   }
 });
 </script>
