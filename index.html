@@ -9,41 +9,43 @@
 /* ================================
    CONFIG — ganti URL RAW GitHub di bawah
    ================================ */
+/* ====== GANTI BAGIAN INI PADA CSS ====== */
+/* Pastikan masukkan URL RAW GitHub di --bg-image-url */
+
 :root{
-  /* Ganti dengan RAW URL GitHub gambarmu, contoh:
-     https://raw.githubusercontent.com/username/repo/branch/path/a7bfa9818992675730304eda95cd377a%20(1).jpg
-  */
-  --bg-image-url: url("a7bfa9818992675730304eda95cd377a (1).jpg");
-
-  /* turunin opacity biar background kelihatan (sesuaikan 0.55/0.7 dst) */
+  --bg-image-url: url("MASUKKAN_URL_RAW_GITHUB_DISINI");
   --content-bg: rgba(255,255,255,0.55);
-
   --panel-padding: 20px;
   --max-width: 900px;
 }
 
-/* FULL PAGE BACKGROUND */
-html, body {
+/* Pasang background di <html> supaya selalu menutupi seluruh layar
+   dan tidak meninggalkan area putih saat discroll */
+html {
   height: 100%;
-  margin: 0;
-}
-body {
   background-image: var(--bg-image-url);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
-  /* penting: beri ruang bawah supaya gambar tidak kepotong di layar ponsel */
-  padding-bottom: 180px;
-
-  font-family: system-ui, Arial, sans-serif;
-  color: #111;
+  background-attachment: fixed; /* penting: tetap di tempat saat scroll */
 }
 
-/* WHITE CONTENT PANEL */
+/* Body berperilaku transparan di atas background html */
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: transparent;     /* biarkan gambar html terlihat */
+  font-family: system-ui, Arial, sans-serif;
+  color: #111;
+
+  /* kecilkan padding-bottom — biar ada ruang untuk tombol tapi tidak kebanyakan */
+  padding-bottom: 100px;
+}
+
+/* content panel — kurangi margin bawah supaya tidak bikin celah */
 #mainWrap {
   max-width: var(--max-width);
-  margin: 25px auto;
+  margin: 20px auto 6px; /* top auto bottom: 6px (lebih kecil) */
   background: var(--content-bg);
   padding: var(--panel-padding);
   border-radius: 14px;
@@ -51,6 +53,9 @@ body {
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
+
+/* Jika masih terlihat celah putih di sebagian device,
+   kamu bisa kurangi lebih lagi padding-bottom di body (mis. 60px) */
 
 /* BASIC TYPO */
 h2 { margin-top: 0; font-size: 28px; }
