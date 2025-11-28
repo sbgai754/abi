@@ -7,7 +7,7 @@
 <style>
 /* ---------- PALETTE (sesuai gambar) ---------- */
 :root{
-  --bg-soft-gradient: linear-gradient(180deg, rgba(231,249,217,0.9) 0%, rgba(246,255,239,0.9) 100%); /* lembut hijau daun overlay */
+  --bg-soft: linear-gradient(180deg, #e7f9d9 0%, #f6ffef 100%); /* lembut hijau daun */
   --card: #ffffff;
   --muted: #6b7280;
   --accent-purple: #7c5cff;   /* lavender / purple */
@@ -20,29 +20,9 @@
   --toast-bg: rgba(15,18,24,0.9);
 }
 
-/* ---------- BASE & BACKGROUND IMAGE (FULLSCREEN FIXED) ---------- */
+/* ---------- BASE ---------- */
 *{box-sizing:border-box}
-
-/* apply full-screen background image + soft gradient overlay.
-   background-attachment: fixed ensures image stays in place when scrolling */
-html,body{
-  height:100%;
-  margin:0;
-  font-family:Inter,system-ui,Arial,sans-serif;
-  color:#072233;
-  background-image:
-    /* gradient overlay to keep legibility */
-    var(--bg-soft-gradient),
-    /* user-provided image (ensure file sits next to HTML) */
-    url("a7bfa9818992675730304eda95cd377a (1).jpg");
-  background-size: cover, cover;
-  background-position: center center, center center;
-  background-repeat: no-repeat, no-repeat;
-  background-attachment: fixed, fixed;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-}
-
+html,body{height:100%;margin:0;background:var(--bg-soft);font-family:Inter,system-ui,Arial,sans-serif;color:#072233}
 .container{max-width:var(--maxw);margin:28px auto;padding:20px}
 
 /* ---------- MAIN CARD ---------- */
@@ -52,9 +32,6 @@ html,body{
   padding:18px;
   border:1px solid rgba(6,23,38,0.04);
   box-shadow:var(--shadow);
-  /* ensure card stands out over image */
-  backdrop-filter: blur(6px) saturate(110%);
-  -webkit-backdrop-filter: blur(6px) saturate(110%);
 }
 
 /* ---------- HEADER ---------- */
@@ -169,23 +146,23 @@ textarea::placeholder{color:rgba(7,34,51,0.32)}
       <a href="#">Web By アビ君 (ABI kun)</a>
     </h2>
 
-    <textarea id="input" placeholder="Tempelkan teks di sini..."></textarea>
+    <textarea id="input" placeholder="Text nya paste ke sini ya sayang.. >_<"></textarea>
 
     <div class="controls">
-      <button class="btn" id="pasteBtn">Tempel</button>
-      <button class="btn red" id="resetBtn">Bersihkan</button>
-      <button id="markBtnInline" title="Simpan ke bookmark">Simpan</button>
+      <button class="btn" id="pasteBtn">Paste</button>
+      <button class="btn red" id="resetBtn">Clear</button>
+      <button id="markBtnInline">★ Simpan</button>
     </div>
 
     <div id="output" aria-live="polite"></div>
 
     <div id="marksPreview" aria-hidden="true">
       <div class="marks-header">
-        <strong id="marksHeaderTitle">Bookmark (0)</strong>
-        <button class="btn" id="clearMarksBtn" style="padding:6px 10px;font-weight:600">Hapus Semua</button>
+        <strong id="marksHeaderTitle">Marks (0)</strong>
+        <button class="btn" id="clearMarksBtn" style="padding:6px 10px;font-weight:600">Clear</button>
       </div>
       <div class="marks-list" id="marksList">
-        <div id="noMarksMsg" style="color:var(--muted)">Belum ada bookmark.</div>
+        <div id="noMarksMsg" style="color:var(--muted)">Belum ada mark.</div>
       </div>
     </div>
 
@@ -198,11 +175,11 @@ textarea::placeholder{color:rgba(7,34,51,0.32)}
 </div>
 
 <!-- floating buttons -->
-<button id="toggleMarksBtn" title="Tampilkan / sembunyikan bookmark">★</button>
-<button id="fullscreenBtn" title="Layar penuh">⛶</button>
+<button id="toggleMarksBtn" title="Tampilkan / sembunyikan marks">★</button>
+<button id="fullscreenBtn" title="Fullscreen">⛶</button>
 
 <script>
-/* === fungsi JS core (sama) + teks profesional === */
+/* === fungsi JS core (sama) + single-toast logic === */
 const KEY = "yomitan_marks_v1";
 const input = document.getElementById("input");
 const output = document.getElementById("output");
@@ -236,7 +213,7 @@ pasteBtn.onclick = async ()=>{
     const t = await navigator.clipboard.readText();
     input.value = t;
     output.textContent = t;
-  }catch{ alert("Izin clipboard ditolak."); }
+  }catch{ alert("Clipboard tidak diizinkan."); }
 };
 resetBtn.onclick = ()=>{ input.value = ""; output.textContent = ""; };
 
@@ -255,22 +232,17 @@ function showToast(message, duration = 1400){
   }, duration);
 }
 
-/* save behavior (dengan teks profesional) */
+/* save behavior */
 markBtnInline.onclick = ()=>{
   const t = (input.value || "").trim();
-  if (!t){
-    showToast("Tidak ada teks untuk disimpan.");
-    markBtnInline.style.transform = "translateY(-4px)";
-    setTimeout(()=> markBtnInline.style.transform = "", 120);
-    return;
-  }
+  if (!t){ showToast("Apa yang mau disimpan?"); markBtnInline.style.transform = "translateY(-4px)"; setTimeout(()=> markBtnInline.style.transform = "", 120); return; }
 
   let arr = loadMarks();
   const normalized = t.replace(/\r\n/g,"\n").trim();
   const idx = arr.findIndex(i => (i.text || "").replace(/\r\n/g,"\n").trim() === normalized);
 
   if (idx !== -1){
-    showToast("Item sudah ada di bookmark.");
+    showToast("text ini sudah ada di borkmark");
     markBtnInline.style.transform = "translateX(-6px)"; setTimeout(()=> markBtnInline.style.transform = "translateX(6px)",80); setTimeout(()=> markBtnInline.style.transform = "",160);
     return;
   } else {
@@ -279,13 +251,13 @@ markBtnInline.onclick = ()=>{
     renderMarks();
     markBtnInline.style.transform = "scale(.98)";
     setTimeout(()=> markBtnInline.style.transform = "",120);
-    showToast("Berhasil disimpan.");
+    showToast("sudah tersimpan");
   }
 };
 
 function renderMarks(){
   const arr = loadMarks();
-  marksHeaderTitle.textContent = `Bookmark (${arr.length})`;
+  marksHeaderTitle.textContent = `Marks (${arr.length})`;
   marksList.querySelectorAll(".mark-item").forEach(n=>n.remove());
   if (!arr.length){ noMarksMsg.style.display = "block"; return; }
   noMarksMsg.style.display = "none";
@@ -294,19 +266,19 @@ function renderMarks(){
     const meta = document.createElement("div"); meta.className = "mark-meta"; meta.textContent = niceDate(m.savedAt);
     const textDiv = document.createElement("div"); textDiv.className = "mark-text"; textDiv.innerHTML = escapeHtml(m.text).replace(/\n/g,"<br>");
     const actions = document.createElement("div"); actions.className = "mark-actions";
-    const loadBtn = document.createElement("button"); loadBtn.className = "mark-load"; loadBtn.textContent = "Muat";
-    loadBtn.onclick = ()=>{ input.value = m.text; output.textContent = m.text; marksPreview.classList.remove("open"); marksPreview.setAttribute("aria-hidden","true"); showToast("Konten dimuat."); };
-    const delBtn = document.createElement("button"); delBtn.className = "mark-del"; delBtn.textContent = "Hapus";
-    delBtn.onclick = ()=>{ saveMarks(loadMarks().filter(x=>x.id!==m.id)); renderMarks(); showToast("Item dihapus."); };
+    const loadBtn = document.createElement("button"); loadBtn.className = "mark-load"; loadBtn.textContent = "Load";
+    loadBtn.onclick = ()=>{ input.value = m.text; output.textContent = m.text; marksPreview.classList.remove("open"); marksPreview.setAttribute("aria-hidden","true"); showToast("Memuat"); };
+    const delBtn = document.createElement("button"); delBtn.className = "mark-del"; delBtn.textContent = "Del";
+    delBtn.onclick = ()=>{ saveMarks(loadMarks().filter(x=>x.id!==m.id)); renderMarks(); showToast("Dihapus"); };
     actions.appendChild(loadBtn); actions.appendChild(delBtn);
     item.appendChild(meta); item.appendChild(textDiv); item.appendChild(actions);
     marksList.appendChild(item);
   });
 }
 
-clearMarksBtn.onclick = ()=>{ if(confirm("Hapus semua bookmark?")){ localStorage.removeItem(KEY); renderMarks(); showToast("Semua bookmark telah dihapus."); } };
+clearMarksBtn.onclick = ()=>{ if(confirm("Hapus semua mark?")){ localStorage.removeItem(KEY); renderMarks(); showToast("Semua marks dihapus"); } };
 
-/* toggle star opens/closes bookmark panel; initially closed */
+/* toggle star opens/closes mark panel; initially closed */
 toggleMarksBtn.onclick = ()=>{
   const isOpen = marksPreview.classList.toggle("open");
   marksPreview.setAttribute("aria-hidden", isOpen ? "false" : "true");
