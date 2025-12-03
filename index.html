@@ -3,24 +3,26 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Abiiiiii の web</title>
+<title>abiii</title>
 <style>
 :root{
-  /* background image file harus berada di folder yang sama dengan HTML */
-  --bg-image: url("a7bfa9818992675730304eda95cd377a (1).jpg");
+  /* NOTE: pakai versi gambar lebih kecil / webp untuk mobile.
+     Ganti URL dengan versi terkompresi (webp/jpg ukuran ~100-300KB). */
+  --bg-image: url("imgbg.jpg");
 
-  --card-bg: rgba(255,255,255,0.64); /* ubah opasitas di sini (0.4 - 0.85) */
-  --panel-bg: rgba(255,255,255,0.60);
-  --input-bg: rgba(255,255,255,0.65);
+  --card-bg: rgba(255,255,255,0.75);
+  --panel-bg: rgba(255,255,255,0.70);
+  --input-bg: rgba(255,255,255,0.85);
   --muted: #6b7280;
   --accent-purple: #7c5cff;
   --accent-pink: #f47c9b;
   --accent-cyan: #8ad7ff;
-  --glass: rgba(255,255,255,0.6);
-  --radius:12px;
+  --glass: rgba(255,255,255,0.8);
+  --radius:10px;
   --maxw:920px;
-  --shadow: 0 10px 30px rgba(15,20,30,0.06);
-  --toast-bg: rgba(20,24,30,0.92);
+  /* kurangi shadow agar rendering lebih ringan */
+  --shadow: 0 6px 16px rgba(15,20,30,0.05);
+  --toast-bg: rgba(20,24,30,0.9);
 }
 
 /* Reset */
@@ -30,46 +32,49 @@ html,body{
   margin:0;
   font-family:Inter,system-ui,Arial,sans-serif;
   color:#072233;
-  /* TETAPKAN HANYA GAMBAR SEBAGAI BACKGROUND (tanpa overlay hijau) */
+  /* non-fixed background -> lebih smooth di mobile */
   background-image: var(--bg-image);
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
-  background-attachment: fixed; /* tetap saat scroll */
+  background-attachment: scroll; /* IMPORTANT: fixed = jank di mobile */
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
+  /* paint containment for root content */
+  contain: paint layout;
 }
 
 /* Container pusat */
-.container{max-width:var(--maxw);margin:1px auto;padding:20px}
+.container{max-width:var(--maxw);margin:8px auto;padding:16px}
 
-/* Card utama — lebih transparan sehingga image terlihat lewat */
+/* Card utama — hilangkan backdrop-filter berat */
 #mainWrap{
-  background: var(--card-bg);           /* transparansi dikontrol di var */
+  background: var(--card-bg);
   border-radius:var(--radius);
-  padding:18px;
+  padding:14px;
   border:1px solid rgba(6,23,38,0.06);
   box-shadow:var(--shadow);
-  backdrop-filter: blur(6px) saturate(115%);        /* bantu keterbacaan */
-  -webkit-backdrop-filter: blur(6px) saturate(115%);
+  /* backdrop-filter sangat mahal: hanya gunakan jika perlu dan beri prefers-reduced-motion */
+  /* backdrop-filter: blur(6px) saturate(115%); */
+  will-change: transform; /* beri hint untuk performa elemen yang animasi */
 }
 
 /* Header */
 h2{margin:0 0 10px 0;font-weight:700;display:flex;align-items:center;gap:12px}
 .brand{
-  width:40px;height:40px;border-radius:10px;
+  width:36px;height:36px;border-radius:8px;
   background:linear-gradient(135deg,var(--accent-purple), #b68cff);
   display:grid;place-items:center;font-weight:800;color:#fff;
-  box-shadow:0 6px 16px rgba(124,92,255,0.12)
+  box-shadow:0 6px 14px rgba(124,92,255,0.08)
 }
 h2 a{color:#072233;text-decoration:none;font-size:16px}
 
 /* Textarea / input: juga semi-transparan */
 textarea{
   width:100%;
-  min-height:120px;
-  padding:14px;
-  border-radius:10px;
+  min-height:110px;
+  padding:12px;
+  border-radius:8px;
   border:1px solid rgba(6,23,38,0.06);
   background: var(--input-bg);
   color:#072233;
@@ -77,70 +82,74 @@ textarea{
   resize:vertical;
   outline:none;
   box-shadow: inset 0 1px 0 rgba(6,23,38,0.02);
-  backdrop-filter: blur(4px);
 }
 textarea::placeholder{color:rgba(7,34,51,0.32)}
 
 /* Controls */
-.controls{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.controls{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;align-items:center}
 .btn{
-  padding:10px 14px;border-radius:10px;border:none;cursor:pointer;background:transparent;color:var(--accent-purple);
+  padding:9px 12px;border-radius:10px;border:none;cursor:pointer;background:transparent;color:var(--accent-purple);
   font-weight:700;border:1px solid rgba(124,92,255,0.12);
-  transition:all 140ms ease;
+  transition:transform 120ms ease,box-shadow 120ms;
 }
-.btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(6,23,38,0.06)}
+.btn:hover{transform:translateY(-3px)}
 .btn.red{color:#be123c;border-color:rgba(190,18,60,0.06)}
 #markBtnInline{
   background:linear-gradient(90deg,var(--accent-pink), #ffd1d7);
   color:#072233;border:none;padding:10px 14px;border-radius:10px;font-weight:800;
-  box-shadow:0 8px 22px rgba(244,124,155,0.12);
+  box-shadow:0 6px 16px rgba(244,124,155,0.10);
 }
 
-/* Output area semi-transparan */
+/* Output area */
 #output{
-  margin-top:14px;
-  min-height:44px;padding:12px 14px;border-radius:10px;
+  margin-top:12px;
+  min-height:40px;padding:10px 12px;border-radius:10px;
   background: var(--panel-bg);
   border:1px solid rgba(6,23,38,0.04);
-  color:#072233;font-size:26px;line-height:1.15;white-space:pre-wrap;overflow-wrap:break-word;
-  backdrop-filter: blur(4px);
+  color:#072233;font-size:20px;line-height:1.15;white-space:pre-wrap;overflow-wrap:break-word;
 }
 
-/* Marks panel semi-transparan */
+/* Marks panel: gunakan transform for animations (GPU) */
 #marksPreview{
-  margin-top:16px;border-radius:10px;background:var(--glass);border:1px solid rgba(6,23,38,0.03);
-  transition: transform 220ms cubic-bezier(.2,.9,.2,1), opacity 200ms ease, height 240ms ease, padding 200ms ease;
-  overflow:hidden;height:0;opacity:0;transform:translateY(-8px);padding:0 8px;
-  backdrop-filter: blur(4px);
+  margin-top:12px;border-radius:10px;background:var(--glass);border:1px solid rgba(6,23,38,0.02);
+  transition:transform 220ms cubic-bezier(.2,.9,.2,1),opacity 160ms ease,height 200ms ease,padding 160ms ease;
+  overflow:hidden;max-height:0;opacity:0;transform:translateY(-6px);padding:0 8px;
 }
-#marksPreview.open{height:auto;opacity:1;transform:translateY(0);padding:12px}
+#marksPreview.open{max-height:420px;opacity:1;transform:translateY(0);padding:10px}
 
 /* marks inner */
 .marks-header{display:flex;justify-content:space-between;align-items:center;padding:6px 4px}
-.marks-list{max-height:260px;overflow:auto;padding:8px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.54), rgba(255,255,255,0.46));}
-.mark-item{background: rgba(255,255,255,0.6);padding:10px;border-radius:8px;margin-bottom:10px;border:1px solid rgba(6,23,38,0.04)}
+.marks-list{max-height:260px;overflow:auto;padding:8px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.86));}
+.mark-item{background: rgba(255,255,255,0.9);padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid rgba(6,23,38,0.03)}
 .mark-meta{font-size:12px;color:var(--muted);margin-bottom:6px}
 .mark-text{font-size:14px;color:#072233;white-space:pre-wrap}
 .mark-actions{margin-top:8px;display:flex;gap:8px}
 .mark-load{padding:8px 10px;border-radius:8px;border:none;background:linear-gradient(180deg,var(--accent-cyan),#53c9ff);color:white;font-weight:700}
 .mark-del{padding:8px 10px;border-radius:8px;border:none;background:linear-gradient(180deg,#fb7185,#f43f5e);color:white;font-weight:700}
 
-/* Single toast slot */
-#toastHolder{position:fixed;left:18px;bottom:84px;z-index:1200;pointer-events:none;display:block;}
-#toast{pointer-events:auto;min-width:160px;padding:12px 14px;border-radius:12px;background:var(--toast-bg);color:#fff;font-weight:700;transform:translateY(10px) scale(.98);opacity:0;transition:transform 220ms,opacity 160ms;}
+/* Toast */
+#toastHolder{position:fixed;left:12px;bottom:78px;z-index:1200;pointer-events:none;display:block;}
+#toast{pointer-events:auto;min-width:160px;padding:10px 12px;border-radius:10px;background:var(--toast-bg);color:#fff;font-weight:700;transform:translateY(8px) scale(.98);opacity:0;transition:transform 180ms,opacity 140ms;will-change:transform,opacity}
 #toast.show{transform:translateY(0) scale(1);opacity:1}
 
-/* Floating buttons */
-#toggleMarksBtn,#fullscreenBtn{position:fixed;width:52px;height:52px;border-radius:12px;border:none;background:#ffffff;display:grid;place-items:center;font-size:20px;z-index:1100;box-shadow:0 8px 26px rgba(6,23,38,0.08);cursor:pointer;}
-#toggleMarksBtn{left:18px;bottom:18px;color:var(--accent-purple)}
-#fullscreenBtn{right:18px;bottom:18px;color:var(--muted)}
+/* Floating buttons (use will-change & simple styles) */
+#toggleMarksBtn,#fullscreenBtn{position:fixed;width:48px;height:48px;border-radius:10px;border:none;background:#ffffff;display:grid;place-items:center;font-size:18px;z-index:1100;box-shadow:0 8px 18px rgba(6,23,38,0.06);cursor:pointer;will-change:transform,opacity}
+#toggleMarksBtn{left:12px;bottom:12px;color:var(--accent-purple)}
+#fullscreenBtn{right:12px;bottom:12px;color:var(--muted)}
 
-/* Responsive */
+/* Responsive and image switching for mobile */
 @media (max-width:720px){
-  #output{font-size:30px}
-  .btn{padding:9px 12px}
-  textarea{min-height:100px}
+  #output{font-size:24px}
+  .btn{padding:8px 10px}
+  textarea{min-height:92px}
   #toggleMarksBtn,#fullscreenBtn{width:44px;height:44px}
+  /* pakai image resolusi lebih rendah di layar kecil */
+  :root{ --bg-image: url("https://img1.pixhost.to/images/10505/665724915_encore.jpg"); }
+}
+
+/* prefers-reduced-motion: reduce animation cost */
+@media (prefers-reduced-motion: reduce){
+  #marksPreview, #toast, .btn{transition:none}
 }
 </style>
 </head>
@@ -185,7 +194,15 @@ textarea::placeholder{color:rgba(7,34,51,0.32)}
 <button id="fullscreenBtn" title="Layar penuh">⛶</button>
 
 <script>
-/* (JS sama seperti sebelumnya) */
+/* PERFORMANCE CHANGES SUMMARY (implemented):
+   - Debounced input update -> mengurangi reflow saat mengetik cepat.
+   - Use documentFragment to render marks -> faster DOM insertion.
+   - Limit heavy CSS (no backdrop-filter, no fixed background).
+   - Use requestAnimationFrame for toast show/hide.
+   - Use will-change hints for frequently animated elements.
+   - Avoid innerHTML in loops except when safe.
+*/
+
 const KEY = "yomitan_marks_v1";
 const input = document.getElementById("input");
 const output = document.getElementById("output");
@@ -208,68 +225,144 @@ marksPreview.setAttribute("aria-hidden","true");
 let toastTimer = null;
 function nowISO(){ return new Date().toISOString(); }
 function niceDate(t){ try { return new Date(t).toLocaleString(); } catch(e){ return t; } }
+
+// localStorage helpers with try/catch
 function loadMarks(){ try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch(e){ return []; } }
-function saveMarks(a){ localStorage.setItem(KEY, JSON.stringify(a)); }
+function saveMarks(a){ try { localStorage.setItem(KEY, JSON.stringify(a)); } catch(e){ /* ignore */ } }
 function escapeHtml(s){ if (s == null) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
-input.addEventListener("input", ()=> output.textContent = input.value );
+/* Debounce helper to avoid too-frequent updates while typing */
+function debounce(fn, wait=120){
+  let t = null;
+  return function(...args){
+    clearTimeout(t);
+    t = setTimeout(()=> fn.apply(this,args), wait);
+  };
+}
 
-pasteBtn.onclick = async ()=>{ try{ const t = await navigator.clipboard.readText(); input.value = t; output.textContent = t; }catch{ alert("Izin clipboard ditolak."); } };
+/* Update output but debounced to reduce layout thrash */
+const updateOutput = debounce(()=> { output.textContent = input.value; }, 80);
+input.addEventListener("input", updateOutput);
+
+/* Clipboard paste */
+pasteBtn.onclick = async ()=>{ 
+  try{
+    const t = await navigator.clipboard.readText();
+    input.value = t; output.textContent = t;
+  }catch{
+    alert("Izin clipboard ditolak atau tidak tersedia.");
+  }
+};
 resetBtn.onclick = ()=>{ input.value = ""; output.textContent = ""; };
 
-function showToast(message, duration = 1400){
+/* Toast via rAF for smoother animation and avoiding setTimeout overlap */
+function showToast(message, duration = 1200){
   if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
   toast.textContent = message;
-  toast.classList.add("show");
-  toastHolder.setAttribute("aria-hidden","false");
+  // show
+  requestAnimationFrame(()=> {
+    toast.classList.add("show");
+    toastHolder.setAttribute("aria-hidden","false");
+  });
   toastTimer = setTimeout(()=>{
-    toast.classList.remove("show");
-    setTimeout(()=> { toastHolder.setAttribute("aria-hidden","true"); }, 180);
+    requestAnimationFrame(()=> {
+      toast.classList.remove("show");
+      setTimeout(()=> { toastHolder.setAttribute("aria-hidden","true"); }, 160);
+    });
     toastTimer = null;
   }, duration);
 }
 
+/* Save mark: avoid duplicates and keep only newest N items to limit DOM size */
 markBtnInline.onclick = ()=>{
   const t = (input.value || "").trim();
-  if (!t){ showToast("Tidak ada teks untuk disimpan."); markBtnInline.style.transform = "translateY(-4px)"; setTimeout(()=> markBtnInline.style.transform = "", 120); return; }
+  if (!t){ showToast("Tidak ada teks untuk disimpan."); return; }
   let arr = loadMarks();
   const normalized = t.replace(/\r\n/g,"\n").trim();
   const idx = arr.findIndex(i => (i.text || "").replace(/\r\n/g,"\n").trim() === normalized);
-  if (idx !== -1){ showToast("Item sudah ada di bookmark."); markBtnInline.style.transform = "translateX(-6px)"; setTimeout(()=> markBtnInline.style.transform = "translateX(6px)",80); setTimeout(()=> markBtnInline.style.transform = "",160); return; }
+  if (idx !== -1){ showToast("Item sudah ada di bookmark."); return; }
   arr.unshift({ id: Date.now()+"-"+Math.random().toString(36).slice(2,6), text: t, savedAt: nowISO() });
+  // limit to 200 entries to prevent huge DOM
+  if (arr.length > 200) arr.length = 200;
   saveMarks(arr); renderMarks();
-  markBtnInline.style.transform = "scale(.98)"; setTimeout(()=> markBtnInline.style.transform = "",120);
   showToast("Berhasil disimpan.");
 };
 
+/* Efficient render: use DocumentFragment to batch DOM insertion */
 function renderMarks(){
   const arr = loadMarks();
   marksHeaderTitle.textContent = `Bookmark (${arr.length})`;
-  marksList.querySelectorAll(".mark-item").forEach(n=>n.remove());
+
+  // remove old items quickly
+  const oldItems = marksList.querySelectorAll(".mark-item");
+  oldItems.forEach(n=>n.remove());
+
   if (!arr.length){ noMarksMsg.style.display = "block"; return; }
   noMarksMsg.style.display = "none";
-  arr.forEach(m=>{
+
+  const frag = document.createDocumentFragment();
+
+  // create elements in JS and append to fragment
+  for (let m of arr){
     const item = document.createElement("div"); item.className = "mark-item";
+
     const meta = document.createElement("div"); meta.className = "mark-meta"; meta.textContent = niceDate(m.savedAt);
-    const textDiv = document.createElement("div"); textDiv.className = "mark-text"; textDiv.innerHTML = escapeHtml(m.text).replace(/\n/g,"<br>");
+
+    const textDiv = document.createElement("div"); textDiv.className = "mark-text";
+    // safe insertion by escaped HTML + replace newline -> <br>
+    textDiv.innerHTML = escapeHtml(m.text).replace(/\n/g,"<br>");
+
     const actions = document.createElement("div"); actions.className = "mark-actions";
     const loadBtn = document.createElement("button"); loadBtn.className = "mark-load"; loadBtn.textContent = "Muat";
-    loadBtn.onclick = ()=>{ input.value = m.text; output.textContent = m.text; marksPreview.classList.remove("open"); marksPreview.setAttribute("aria-hidden","true"); showToast("Konten dimuat."); };
+    loadBtn.onclick = (e)=>{ input.value = m.text; output.textContent = m.text; marksPreview.classList.remove("open"); marksPreview.setAttribute("aria-hidden","true"); showToast("Konten dimuat."); };
     const delBtn = document.createElement("button"); delBtn.className = "mark-del"; delBtn.textContent = "Hapus";
-    delBtn.onclick = ()=>{ saveMarks(loadMarks().filter(x=>x.id!==m.id)); renderMarks(); showToast("Item dihapus."); };
+    delBtn.onclick = (e)=>{ 
+      const after = loadMarks().filter(x=>x.id!==m.id); 
+      saveMarks(after); 
+      renderMarks(); 
+      showToast("Item dihapus."); 
+    };
     actions.appendChild(loadBtn); actions.appendChild(delBtn);
+
     item.appendChild(meta); item.appendChild(textDiv); item.appendChild(actions);
-    marksList.appendChild(item);
-  });
+    frag.appendChild(item);
+  }
+
+  marksList.appendChild(frag);
 }
 
-clearMarksBtn.onclick = ()=>{ if(confirm("Hapus semua bookmark?")){ localStorage.removeItem(KEY); renderMarks(); showToast("Semua bookmark telah dihapus."); } };
+/* Clear all marks - keep confirm */
+clearMarksBtn.onclick = ()=>{ 
+  if(confirm("Hapus semua bookmark?")){ 
+    localStorage.removeItem(KEY); 
+    renderMarks(); 
+    showToast("Semua bookmark telah dihapus."); 
+  } 
+};
 
-toggleMarksBtn.onclick = ()=>{ const isOpen = marksPreview.classList.toggle("open"); marksPreview.setAttribute("aria-hidden", isOpen ? "false" : "true"); if (isOpen) renderMarks(); };
+/* Toggle marks; only render when opening to save work */
+toggleMarksBtn.onclick = ()=>{
+  const isOpen = marksPreview.classList.toggle("open");
+  marksPreview.setAttribute("aria-hidden", isOpen ? "false" : "true");
+  if (isOpen) renderMarks();
+};
 
-fullscreenBtn.onclick = ()=>{ if (!document.fullscreenElement){ document.documentElement.requestFullscreen(); fullscreenBtn.textContent="×"; } else { document.exitFullscreen(); fullscreenBtn.textContent="⛶"; } };
+/* Fullscreen */
+fullscreenBtn.onclick = ()=>{ 
+  if (!document.fullscreenElement){ 
+    document.documentElement.requestFullscreen().catch(()=>{/* ignore */}); 
+    fullscreenBtn.textContent="×"; 
+  } else { 
+    document.exitFullscreen().catch(()=>{/* ignore */}); 
+    fullscreenBtn.textContent="⛶"; 
+  } 
+};
 
+/* Initial render */
 renderMarks();
+
+/* Extra recommendations (logged once to console) */
+console.log("Yomitan: performance mode ON — tips: compress background image, serve webp, avoid backdrop-filter, remove background-attachment:fixed.");
 </script>
 </body>
 </html>
